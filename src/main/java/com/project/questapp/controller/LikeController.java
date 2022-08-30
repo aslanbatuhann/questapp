@@ -1,6 +1,7 @@
 package com.project.questapp.controller;
 
 import com.project.questapp.entity.Like;
+import com.project.questapp.requests.LikeCreateRequest;
 import com.project.questapp.service.LikeService;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,11 @@ public class LikeController {
     @GetMapping("/{likeId}")
     public Like getOneLike(@PathVariable Long likeId){
         return likeService.getOneLikeById(likeId);
+    }
+
+    @PostMapping
+    public Like createOneLike(@RequestBody LikeCreateRequest request){
+        return likeService.createOneLike(request);
     }
     @DeleteMapping("/{likeId}")
     public void deleteOneLike(@PathVariable Long likeId){
