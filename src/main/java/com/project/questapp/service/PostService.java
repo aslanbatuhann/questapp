@@ -5,10 +5,12 @@ import com.project.questapp.entity.User;
 import com.project.questapp.repository.PostRepository;
 import com.project.questapp.requests.PostCreateRequest;
 import com.project.questapp.requests.PostUpdateRequest;
+import com.project.questapp.responses.PostResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -16,17 +18,20 @@ public class PostService {
     private PostRepository postRepository;
     private UserService userService;
 
-    public PostService(PostRepository postRepository,UserService userService){
+    public PostService(PostRepository postRepository, UserService userService) {
         this.postRepository = postRepository;
         this.userService = userService;
     }
 
 
-    public List<Post> getAllPosts(Optional<Long> userId) {
-        if(userId.isPresent()){
-            return postRepository.findByUserId(userId.get());
+    public List<PostResponse> getAllPosts(Optional<Long> userId) {
+        List<Post> list;
+        if (userId.isPresent()) {
+            list = postRepository.findByUserId(userId.get());
         }
-        return postRepository.findAll();
+            list = postRepository.findAll();
+            return list.stream().map(p -> new PostResponse(p)).collect(Collectors.toList());
+
     }
 
     public Post getOnePostById(Long postId) {
@@ -48,7 +53,7 @@ public class PostService {
 
     public Post updateOnePostById(Long postId, PostUpdateRequest updatePost) {
         Optional<Post> post = postRepository.findById(postId);
-        if (post.isPresent()){
+        if (post.isPresent()) {
             Post toUpdate = post.get();
             toUpdate.setText(updatePost.getText());
             toUpdate.setTitle(updatePost.getTitle());
