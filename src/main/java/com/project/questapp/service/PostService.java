@@ -1,10 +1,12 @@
 package com.project.questapp.service;
 
+import com.project.questapp.entity.Like;
 import com.project.questapp.entity.Post;
 import com.project.questapp.entity.User;
 import com.project.questapp.repository.PostRepository;
 import com.project.questapp.requests.PostCreateRequest;
 import com.project.questapp.requests.PostUpdateRequest;
+import com.project.questapp.responses.LikeResponse;
 import com.project.questapp.responses.PostResponse;
 import org.springframework.stereotype.Service;
 
@@ -16,21 +18,26 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private PostRepository postRepository;
+    private LikeService likeService;
     private UserService userService;
 
     public PostService(PostRepository postRepository, UserService userService) {
         this.postRepository = postRepository;
-        this.userService = userService;
+        this.likeService = likeService;
     }
-
+public void setLikeService(LikeService likeService){
+        this.likeService=likeService;
+}
 
     public List<PostResponse> getAllPosts(Optional<Long> userId) {
         List<Post> list;
         if (userId.isPresent()) {
             list = postRepository.findByUserId(userId.get());
         }
-            list = postRepository.findAll();
-            return list.stream().map(p -> new PostResponse(p)).collect(Collectors.toList());
+        list = postRepository.findAll();
+        return list.stream().map(p -> {
+            List<LikeResponse> likes = likeService.getAllLikesWithParam(null, Optional.of(p.getId()));
+            return new PostResponse(p, likes);}).collect(Collectors.toList());
 
     }
 
